@@ -2,15 +2,17 @@ package main
 
 import (
 	"fmt"
+	"os"
 	tea "github.com/charmbracelet/bubbletea"
-	// "github.com/muesli/termenv" 
+	"github.com/muesli/termenv" 
 )
 
+var term = termenv.ColorProfile()
 
 func main() {
 	initCat := conciergeCat{
-		services: [3]string{"create", "get", "delete"}
-		currentService : -1
+		services: [3]string{"create", "get", "delete"},
+		currentService: -1,
 	}
 
 	p := tea.NewProgram(initCat)
@@ -38,6 +40,19 @@ func (cc conciergeCat) Init() tea.Cmd {
 
 // BubbleTea: Update 
 func (cc conciergeCat) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg: 	// keyboard input?!
+		switch msg.String() {
+		case "ctrl+c", "q":
+			return cc, tea.Quit
+		case "up", "k":
+			
+		case "down", "j":
+			
+		case "enter", " ":
+			
+		}
+	}
 	return cc, nil
 }
 
