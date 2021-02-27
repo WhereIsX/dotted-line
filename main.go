@@ -2,20 +2,37 @@ package main
 
 import (
 	"fmt"
+	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/muesli/termenv"
 	"os"
 )
 
-var term = termenv.ColorProfile()
+var (
+	term  = termenv.ColorProfile()
+	color = termenv.ColorProfile().Color
+)
+
+// spinner.Line,
+// spinner.Dot,
+// spinner.MiniDot,
+// spinner.Jump,
+// spinner.Pulse,
+// spinner.Points,
+// spinner.Globe,
+// spinner.Moon,
+// spinner.Monkey,
 
 func main() {
+	yanasSpinner := spinner.NewModel()
+	yanasSpinner.Spinner = spinner.MiniDot
 	initCat := conciergeCat{
 		clientID:          "test",
 		authToken:         "test",
 		broadcasterUserID: "more tests",
 		// services: [3]string{"create", "get", "delete"},
-		view: "signup",
+		view:    "signup",
+		spinner: yanasSpinner,
 	}
 
 	p := tea.NewProgram(initCat)
@@ -38,11 +55,12 @@ type conciergeCat struct {
 	authToken          string
 	broadcasterUserID  string
 	userFinishedSignup bool
+	spinner            spinner.Model
 }
 
 // BubbleTea: Init
 func (cc conciergeCat) Init() tea.Cmd {
-	return nil
+	return spinner.Tick
 }
 
 // BubbleTea: Update
@@ -59,14 +77,34 @@ func (cc conciergeCat) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter", " ":
 
 		}
+	case spinner.TickMsg: // update spinner?
+		var cmd tea.Cmd
+		cc.spinner, cmd = cc.spinner.Update(msg)
+		return cc, cmd
 	}
 	return cc, nil
 }
 
 // BubbleTea: View
 func (cc conciergeCat) View() string {
+	var display string
+	defaultStringLiteral := `
+	welp. we couldn't find anything nice to show 
+	so here's a spinner for your troubles %s
 
-	display := "test test"
+	PSST: you can dm yana github.com/whereisx and tell her her shit's broken`
+	spinner := termenv.String(cc.spinner.View()).Foreground(color("205")).String()
+	defaultView := fmt.Sprintf(defaultStringLiteral, spinner)
+
+	switch cc.view {
+	case "signup":
+		// display = signupView()
+		display = defaultView
+	case "":
+		display = defaultView
+	default:
+		display = defaultView
+	}
 	return display + cc.viewFooter()
 }
 

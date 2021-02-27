@@ -33,7 +33,6 @@ def subscribe_to_follows(broadcaster_user_id = "110751694")
       "method":   "webhook",
       "callback": "https://whereisxbotakacharlie.pagekite.me/webhooks/callback",
       "secret":   ENV["TWITCH_HMAC_KEY"],
-      # "secret": "the ducks are getting hungry",
     },
   }
   z_body = tw_ex_body.to_json
