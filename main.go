@@ -2,44 +2,69 @@ package main
 
 import (
 	"fmt"
+
+	"os"
+
 	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/muesli/termenv"
-	"os"
 )
 
 var (
-	term  = termenv.ColorProfile()
-	color = termenv.ColorProfile().Color
+	term               = termenv.ColorProfile()
+	color              = termenv.ColorProfile().Color
+	focusedPromptColor = "132" //
 )
 
-// spinner.Line,
-// spinner.Dot,
-// spinner.MiniDot,
-// spinner.Jump,
-// spinner.Pulse,
-// spinner.Points,
-// spinner.Globe,
-// spinner.Moon,
-// spinner.Monkey,
-
 func main() {
-	yanasSpinner := spinner.NewModel()
-	yanasSpinner.Spinner = spinner.MiniDot
-	initCat := conciergeCat{
-		clientID:          "test",
-		authToken:         "test",
-		broadcasterUserID: "more tests",
-		// services: [3]string{"create", "get", "delete"},
-		view:    "signup",
-		spinner: yanasSpinner,
-	}
-
+	initCat := initialConciergeCat()
 	p := tea.NewProgram(initCat)
 	if err := p.Start(); err != nil {
 		fmt.Printf("You WAT: %v", err)
 		os.Exit(1)
 	}
+}
+
+func initialConciergeCat() conciergeCat {
+	yanasSpinner := spinner.NewModel()
+	yanasSpinner.Spinner = spinner.MiniDot
+
+	// clientID := textinput.NewModel()
+	// clientID.Placeholder = "clientID"
+	// //clientID.CursorColor
+	// clientID.Prompt =
+	// 	clientID.Focus()
+
+	initCat := conciergeCat{
+
+		view:    "signup",
+		spinner: yanasSpinner,
+	}
+
+	return initCat
+
+	// name := textinput.NewModel()
+	// name.Placeholder = "Nickname"
+	// name.Focus()
+	// name.Prompt = focusedPrompt
+	// name.TextColor = focusedTextColor
+	// name.CharLimit = 32
+
+	// email := textinput.NewModel()
+	// email.Placeholder = "Email"
+	// email.Prompt = blurredPrompt
+	// email.CharLimit = 64
+
+	// password := textinput.NewModel()
+	// password.Placeholder = "Password"
+	// password.Prompt = blurredPrompt
+	// password.EchoMode = textinput.EchoPassword
+	// password.EchoCharacter = '•'
+	// password.CharLimit = 32
+
+	// return model{0, name, email, password, blurredSubmitButton}
+
 }
 
 // To play nice with BubbleTea, we need:
@@ -50,10 +75,10 @@ func main() {
 type conciergeCat struct {
 	// services [3]string
 	// currentService int // this points to which service we want
-	view               string // options: "main", "create", "read", "delete", "delete_all"
-	clientID           string
-	authToken          string
-	broadcasterUserID  string
+	view               string // options: "signup", "main", "create", "read", "delete", "delete_all"
+	clientID           textinput.Model
+	authToken          textinput.Model
+	broadcasterUserID  textinput.Model
 	userFinishedSignup bool
 	spinner            spinner.Model
 }
@@ -89,10 +114,11 @@ func (cc conciergeCat) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (cc conciergeCat) View() string {
 	var display string
 	defaultStringLiteral := `
-	welp. we couldn't find anything nice to show 
-	so here's a spinner for your troubles %s
+  welp. we couldn't find anything nice to show 
+  so here's a spinner for your troubles %s
 
-	PSST: you can dm yana github.com/whereisx and tell her her shit's broken`
+  PSST: you can dm yana github.com/whereisx and
+  tell her her shit's broken`
 	spinner := termenv.String(cc.spinner.View()).Foreground(color("205")).String()
 	defaultView := fmt.Sprintf(defaultStringLiteral, spinner)
 
@@ -106,6 +132,10 @@ func (cc conciergeCat) View() string {
 		display = defaultView
 	}
 	return display + cc.viewFooter()
+}
+
+func (cc conciergeCat) signupView() string {
+	return ""
 }
 
 // the ever helperful footer :>
