@@ -14,7 +14,10 @@ import (
 var (
 	term               = termenv.ColorProfile()
 	color              = termenv.ColorProfile().Color
-	focusedPromptColor = "132" //
+	focusedPromptColor = "132" // pastel pink?
+	blurredPromptColor = "172" // rose gold ?
+	focusedPrompt      = termenv.String("> ").Foreground(color("132")).String()
+	blurredPrompt      = "  "
 )
 
 func main() {
@@ -30,41 +33,36 @@ func initialConciergeCat() conciergeCat {
 	yanasSpinner := spinner.NewModel()
 	yanasSpinner.Spinner = spinner.MiniDot
 
-	// clientID := textinput.NewModel()
-	// clientID.Placeholder = "clientID"
-	// //clientID.CursorColor
-	// clientID.Prompt =
-	// 	clientID.Focus()
+	clientID := textinput.NewModel()
+	clientID.Placeholder = "client ID"
+	//clientID.CursorColor
+	clientID.Prompt = focusedPrompt
+	clientID.TextColor = focusedPromptColor
+	clientID.Focus()
+
+	authToken := textinput.NewModel()
+	authToken.Placeholder = "auth Token"
+	//authToken.CursorColor
+	authToken.Prompt = blurredPrompt
+	authToken.TextColor = blurredPromptColor
+
+	broadcasterUserID := textinput.NewModel()
+	broadcasterUserID.Placeholder = "broadcaster User ID"
+	//broadcasterUserID.CursorColor
+	broadcasterUserID.Prompt = blurredPrompt
+	broadcasterUserID.TextColor = blurredPromptColor
 
 	initCat := conciergeCat{
-
-		view:    "signup",
-		spinner: yanasSpinner,
+		clientID:          clientID,
+		authToken:         authToken,
+		broadcasterUserID: broadcasterUserID,
+		view:              "signup",
+		spinner:           yanasSpinner,
 	}
 
 	return initCat
-
-	// name := textinput.NewModel()
-	// name.Placeholder = "Nickname"
-	// name.Focus()
-	// name.Prompt = focusedPrompt
-	// name.TextColor = focusedTextColor
-	// name.CharLimit = 32
-
-	// email := textinput.NewModel()
-	// email.Placeholder = "Email"
-	// email.Prompt = blurredPrompt
-	// email.CharLimit = 64
-
-	// password := textinput.NewModel()
-	// password.Placeholder = "Password"
-	// password.Prompt = blurredPrompt
 	// password.EchoMode = textinput.EchoPassword
 	// password.EchoCharacter = '•'
-	// password.CharLimit = 32
-
-	// return model{0, name, email, password, blurredSubmitButton}
-
 }
 
 // To play nice with BubbleTea, we need:
@@ -75,12 +73,17 @@ func initialConciergeCat() conciergeCat {
 type conciergeCat struct {
 	// services [3]string
 	// currentService int // this points to which service we want
-	view               string // options: "signup", "main", "create", "read", "delete", "delete_all"
+	view string // options: "signup", "main", "create", "read", "delete", "delete_all"
+
+	// signup Page Related
+	userFinishedSignup bool
+	signupFormField    int
+	signupFormFields   [3]string
 	clientID           textinput.Model
 	authToken          textinput.Model
 	broadcasterUserID  textinput.Model
-	userFinishedSignup bool
-	spinner            spinner.Model
+
+	spinner spinner.Model
 }
 
 // BubbleTea: Init
@@ -93,14 +96,8 @@ func (cc conciergeCat) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg: // keyboard input?!
 		switch msg.String() {
-		case "ctrl+c", "q", "Q":
+		case "ctrl+c", "q", "Q", "esc":
 			return cc, tea.Quit
-		case "up", "k":
-
-		case "down", "j":
-
-		case "enter", " ":
-
 		}
 	case spinner.TickMsg: // update spinner?
 		var cmd tea.Cmd
@@ -109,6 +106,10 @@ func (cc conciergeCat) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	return cc, nil
 }
+
+// func (cc conciergeCat) UpdateSignupForm(msg tea.Msg) (tea.Model, tea.Cmd) {
+// 	return
+// }
 
 // BubbleTea: View
 func (cc conciergeCat) View() string {
@@ -124,8 +125,7 @@ func (cc conciergeCat) View() string {
 
 	switch cc.view {
 	case "signup":
-		// display = signupView()
-		display = defaultView
+		display = cc.signupView()
 	case "":
 		display = defaultView
 	default:
@@ -135,7 +135,11 @@ func (cc conciergeCat) View() string {
 }
 
 func (cc conciergeCat) signupView() string {
-	return ""
+	form := cc.clientID.View() + "\n" +
+		cc.authToken.View() + "\n" +
+		cc.broadcasterUserID.View() + "\n"
+
+	return form
 }
 
 // the ever helperful footer :>
