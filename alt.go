@@ -184,8 +184,8 @@ func signupConfirmedView(m model) string {
 }
 
 func signupView(m model) string {
-	return (m.nameInput.View() + "\n" +
+	return m.nameInput.View() + "\n" +
 		m.emailInput.View() + "\n" +
 		m.passwordInput.View() + "\n\n" +
-		m.submitButton + "\n")
+		m.submitButton + "\n"
 }
