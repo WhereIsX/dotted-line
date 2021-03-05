@@ -1,7 +1,6 @@
+// powered by zongzi -- yana
+// derived from github.com/charmbracelet/bubbletea/blob/master/examples/textinputs
 package main
-
-// A simple example demonstrating the use of multiple text input components
-// from the Bubbles component library.
 
 import (
 	"fmt"
@@ -59,7 +58,14 @@ func initialModel() model {
 	password.EchoCharacter = '•'
 	password.CharLimit = 32
 
-	return model{0, name, email, password, blurredSubmitButton}
+	return model{
+		focusedField:  0,
+		nameInput:     name,
+		emailInput:    email,
+		passwordInput: password,
+		submitButton:  focusedSubmitButton,
+		view:          "",
+	}
 
 }
 func (m model) Init() tea.Cmd {
@@ -73,7 +79,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 
-		case "ctrl+c":
+		case "ctrl+c", "esc", "q", "Q":
 			return m, tea.Quit
 
 		// Cycle between inputs
