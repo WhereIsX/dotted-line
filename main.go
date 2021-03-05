@@ -33,6 +33,8 @@ func initialConciergeCat() conciergeCat {
 	yanasSpinner := spinner.NewModel()
 	yanasSpinner.Spinner = spinner.MiniDot
 
+	focusedFormField := 0
+
 	clientID := textinput.NewModel()
 	clientID.Placeholder = "client ID"
 	//clientID.CursorColor
@@ -41,23 +43,26 @@ func initialConciergeCat() conciergeCat {
 	clientID.Focus()
 
 	authToken := textinput.NewModel()
-	authToken.Placeholder = "auth Token"
+	authToken.Placeholder = "auth token"
 	//authToken.CursorColor
 	authToken.Prompt = blurredPrompt
 	authToken.TextColor = blurredPromptColor
 
 	broadcasterUserID := textinput.NewModel()
-	broadcasterUserID.Placeholder = "broadcaster User ID"
+	broadcasterUserID.Placeholder = "broadcaster user ID"
 	//broadcasterUserID.CursorColor
 	broadcasterUserID.Prompt = blurredPrompt
 	broadcasterUserID.TextColor = blurredPromptColor
 
 	initCat := conciergeCat{
+
+		focusedFormField:  focusedFormField,
 		clientID:          clientID,
 		authToken:         authToken,
 		broadcasterUserID: broadcasterUserID,
-		view:              "signup",
-		spinner:           yanasSpinner,
+
+		view:    "signup",
+		spinner: yanasSpinner,
 	}
 
 	return initCat
@@ -77,8 +82,7 @@ type conciergeCat struct {
 
 	// signup Page Related
 	userFinishedSignup bool
-	signupFormField    int
-	signupFormFields   [3]string
+	focusedFormField   int
 	clientID           textinput.Model
 	authToken          textinput.Model
 	broadcasterUserID  textinput.Model
@@ -104,12 +108,51 @@ func (cc conciergeCat) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cc.spinner, cmd = cc.spinner.Update(msg)
 		return cc, cmd
 	}
+
+	switch cc.view {
+	case "signup":
+		return UpdateSignupForm(cc, msg)
+	}
+
 	return cc, nil
 }
 
-// func (cc conciergeCat) UpdateSignupForm(msg tea.Msg) (tea.Model, tea.Cmd) {
-// 	return
-// }
+func UpdateSignupForm(cc conciergeCat, msg tea.Msg) (tea.Model, tea.Cmd) {
+
+	// up/down to change focused field
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "up":
+			cc.focusedFormField--
+		case "down":
+			cc.focusedFormField++
+		}
+	}
+
+	fields := []textinput.Model{
+		cc.clientID,
+		cc.authToken,
+		cc.broadcasterUserID,
+	}
+	// keep focused field within bounds
+	numFields := len(fields)
+	if cc.focusedFormField < 0 {
+		cc.focusedFormField = 0
+	} else if cc.focusedFormField > numFields-1 {
+		cc.focusedFormField = numFields - 1
+	}
+
+	for i := 0; i < numFields; i++ {
+		if i == cc.focusedFormField {
+			fields[i].Focus()
+			fields[i].Prompt = focusedPrompt
+		}
+		fields[i].Blur()
+		fields[i].Prompt = blurredPrompt
+	}
+	return cc, nil
+}
 
 // BubbleTea: View
 func (cc conciergeCat) View() string {
