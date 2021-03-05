@@ -64,7 +64,7 @@ func initialModel() model {
 		emailInput:    email,
 		passwordInput: password,
 		submitButton:  focusedSubmitButton,
-		view:          "",
+		view:          "signup",
 	}
 
 }
@@ -106,11 +106,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.focusedField++
 			}
 
-			// implenting wraparound for menu
+			// prevent focused field from going out of bounds
 			if m.focusedField > len(inputs) {
-				m.focusedField = 0
-			} else if m.focusedField < 0 {
 				m.focusedField = len(inputs)
+			} else if m.focusedField < 0 {
+				m.focusedField = 0
 			}
 
 			for i := 0; i <= len(inputs)-1; i++ {
@@ -168,22 +168,24 @@ func updateInputs(msg tea.Msg, m model) (model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	s := "\n"
-
-	inputs := []string{
-		m.nameInput.View(),
-		m.emailInput.View(),
-		m.passwordInput.View(),
+	display := "shits broken. contact yana at github.com/whereisx"
+	switch m.view {
+	case "signup":
+		display = signupView(m)
+	case "signup confirmed":
+		display = signupConfirmedView(m)
 	}
+	return display
+}
 
-	// logic for adding newlines between inputs
-	for i := 0; i < len(inputs); i++ {
-		s += inputs[i]
-		if i < len(inputs)-1 {
-			s += "\n"
-		}
-	}
+func signupConfirmedView(m model) string {
+	return `yay! we got your fecal matter-- 
+	sending to the lab for analysis right meow`
+}
 
-	s += "\n\n" + m.submitButton + "\n"
-	return s
+func signupView(m model) string {
+	return (m.nameInput.View() + "\n" +
+		m.emailInput.View() + "\n" +
+		m.passwordInput.View() + "\n\n" +
+		m.submitButton + "\n")
 }
