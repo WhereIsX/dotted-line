@@ -103,15 +103,16 @@ func (cc conciergeCat) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q", "Q", "esc":
 			return cc, tea.Quit
 		}
-	case spinner.TickMsg: // update spinner?
-		var cmd tea.Cmd
-		cc.spinner, cmd = cc.spinner.Update(msg)
-		return cc, cmd
+
 	}
 
 	switch cc.view {
 	case "signup":
+		//	fmt.Println("signup")
 		return UpdateSignupForm(cc, msg)
+	default:
+		//	fmt.Println("default")
+		return cc, nil
 	}
 
 	return cc, nil
@@ -147,10 +148,19 @@ func UpdateSignupForm(cc conciergeCat, msg tea.Msg) (tea.Model, tea.Cmd) {
 		if i == cc.focusedFormField {
 			fields[i].Focus()
 			fields[i].Prompt = focusedPrompt
+			// fmt.Println("focusing on: ")
+			// fmt.Println(fields[i])
+		} else {
+			fields[i].Blur()
+			fields[i].Prompt = blurredPrompt
+			// fmt.Println("blurring out: ")
+			// fmt.Println(fields[i])
+
 		}
-		fields[i].Blur()
-		fields[i].Prompt = blurredPrompt
+
 	}
+
+	//fmt.Println(fields)
 	return cc, nil
 }
 
