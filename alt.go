@@ -33,7 +33,9 @@ type model struct {
 	nameInput     textinput.Model
 	emailInput    textinput.Model
 	passwordInput textinput.Model
-	submitButton  string
+	// callbackWebsite string
+	// checksumSecretPassphrase string
+	submitButton string
 
 	view string
 }
@@ -73,6 +75,21 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var (
+		newModel tea.Model
+		newCmd   tea.Cmd
+	)
+	switch m.view {
+	case "signup":
+		newModel, newCmd = updateSignup(m, msg)
+	case "signup confirmed":
+		// newModel :=
+	}
+
+	return newModel, newCmd
+}
+
+func updateSignup(m model, msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
