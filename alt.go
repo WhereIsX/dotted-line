@@ -41,30 +41,30 @@ type model struct {
 }
 
 func initialModel() model {
-	name := textinput.NewModel()
-	name.Placeholder = "Nickname"
-	name.Focus()
-	name.Prompt = focusedPrompt
-	name.TextColor = focusedTextColor
-	name.CharLimit = 32
+	clientID := textinput.NewModel()
+	clientID.Placeholder = "client ID"
+	clientID.Focus()
+	clientID.Prompt = focusedPrompt
+	clientID.TextColor = focusedTextColor
+	clientID.CharLimit = 32
 
-	email := textinput.NewModel()
-	email.Placeholder = "Email"
-	email.Prompt = blurredPrompt
-	email.CharLimit = 64
+	authToken := textinput.NewModel()
+	authToken.Placeholder = "auth token"
+	authToken.Prompt = blurredPrompt
+	authToken.CharLimit = 64
+	authToken.EchoMode = textinput.EchoPassword
+	authToken.EchoCharacter = '•'
 
-	password := textinput.NewModel()
-	password.Placeholder = "Password"
-	password.Prompt = blurredPrompt
-	password.EchoMode = textinput.EchoPassword
-	password.EchoCharacter = '•'
-	password.CharLimit = 32
+	broadcasterUserID := textinput.NewModel()
+	broadcasterUserID.Placeholder = "broadcaster user id"
+	broadcasterUserID.Prompt = blurredPrompt
+	broadcasterUserID.CharLimit = 32
 
 	return model{
 		focusedField:  0,
-		nameInput:     name,
-		emailInput:    email,
-		passwordInput: password,
+		nameInput:     clientID,
+		emailInput:    authToken,
+		passwordInput: broadcasterUserID,
 		submitButton:  focusedSubmitButton,
 		view:          "signup",
 	}
@@ -92,8 +92,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.view {
 	case "signup":
 		return updateSignup(m, msg)
-	case "signup confirmed":
-		// newModel :=
+		// case "signup confirmed":
+		// 	return update
 	}
 
 	return newModel, newCmd
@@ -118,16 +118,16 @@ func updateSignup(m model, msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.passwordInput,
 			}
 
-			s := msg.String()
+			keypress := msg.String()
 
 			// Did the user press enter while the submit button was focused?
-			// If so, exit.
-			if s == "enter" && m.focusedField == len(inputs) {
-				return m, tea.Quit
+			if keypress == "enter" && m.focusedField == len(inputs) {
+				m.view = "signup confirmed"
+				return m, nil
 			}
 
 			// Cycle indexes
-			if s == "up" || s == "shift+tab" {
+			if keypress == "up" || keypress == "shift+tab" {
 				m.focusedField--
 			} else {
 				m.focusedField++
@@ -206,8 +206,8 @@ func (m model) View() string {
 }
 
 func signupConfirmedView(m model) string {
-	return `yay! we got your fecal matter-- 
-	sending to the lab for analysis right meow`
+	return `  yay! we got your shit-- 
+  sending to the lab for analysis right meow`
 }
 
 func signupView(m model) string {
