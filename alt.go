@@ -14,6 +14,7 @@ import (
 const focusedTextColor = "205"
 
 var (
+	term                = te.ColorProfile()
 	color               = te.ColorProfile().Color
 	focusedPrompt       = te.String("> ").Foreground(color("205")).String()
 	blurredPrompt       = "> "
@@ -85,7 +86,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 
 		case "ctrl+c", "esc", "q", "Q":
-			fmt.Println("wat")
+			m.view = "quit"
 			return m, tea.Quit
 		}
 	}
@@ -106,9 +107,6 @@ func updateSignup(m model, msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 
-		case "ctrl+c", "esc", "q", "Q":
-			return m, tea.Quit
-
 		// Cycle between inputs
 		case "tab", "shift+tab", "enter", "up", "down":
 
@@ -117,9 +115,7 @@ func updateSignup(m model, msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.emailInput,
 				m.passwordInput,
 			}
-
 			keypress := msg.String()
-
 			// Did the user press enter while the submit button was focused?
 			if keypress == "enter" && m.focusedField == len(inputs) {
 				m.view = "signup confirmed"
@@ -201,13 +197,17 @@ func (m model) View() string {
 		display = signupView(m)
 	case "signup confirmed":
 		display = signupConfirmedView(m)
+	case "quit":
+		display = quitView()
 	}
-	return display
+	return display + viewFooter()
 }
 
 func signupConfirmedView(m model) string {
-	return `  yay! we got your shit-- 
-  sending to the lab for analysis right meow`
+	return `
+  yay! we got your shit-- 
+  sending to the lab for analysis right meow
+  `
 }
 
 func signupView(m model) string {
@@ -215,4 +215,15 @@ func signupView(m model) string {
 		m.emailInput.View() + "\n" +
 		m.passwordInput.View() + "\n\n" +
 		m.submitButton + "\n"
+}
+
+func quitView() string {
+	return `
+  see ya later!
+  `
+}
+
+// the ever helperful footer :>
+func viewFooter() string {
+	return te.String("\n  ↑/↓: Navigate • q: Quit\n").Foreground(term.Color("241")).String()
 }
