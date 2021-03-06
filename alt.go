@@ -79,9 +79,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		newModel tea.Model
 		newCmd   tea.Cmd
 	)
+
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+
+		case "ctrl+c", "esc", "q", "Q":
+			fmt.Println("wat")
+			return m, tea.Quit
+		}
+	}
 	switch m.view {
 	case "signup":
-		newModel, newCmd = updateSignup(m, msg)
+		return updateSignup(m, msg)
 	case "signup confirmed":
 		// newModel :=
 	}
